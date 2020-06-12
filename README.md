@@ -68,10 +68,13 @@ Vendor maintains Facilities, servers, infrastructures, Virtulization , OS etc. Y
 consume the OS. e.g EC2.
 4. Platform as a Service (PaaS): Good for running an application only. The
 unit of consumption is the runtime environment. You manage the application
-and the data, but the vendor manges all else. e.g. If you want to run a Python application, the vendor provides Python runtime. (You consume Runtime). e.g. Heroku
+and the data, but the vendor manges all else. e.g. If you want to run a Python application, the vendor provides Python runtime. (You consume Runtime). e.g. Heroku (You can host your app here).
 5. Software as a Service (SaaS): You consume the software as a service. This
 can be Outlook or Netflix. There are almost no risks or additional costs, but
-very little control.
+very little control. You consume the application.
+
+![Optional Text](./images/Screenshot 2020-06-12 at 7.23.57 PM.png)
+
 
 There are additional services such as *Function as a Service*,
 *Container as a Service*, and *DataBase as a Service* which be explained later.
