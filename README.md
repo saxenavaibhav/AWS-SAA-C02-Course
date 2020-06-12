@@ -106,6 +106,8 @@ This is done by taking a part of the private service and projecting it into the
 AWS public zone which allows public internet to make inbound or outbound
 connections.
 
+![Optional Text](./images/publicprivateservice.png)
+
 ### [AWS Global Infrastructure](https://www.infrastructure.aws/)
 
 #### Regions
