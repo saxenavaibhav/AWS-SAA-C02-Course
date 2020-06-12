@@ -57,16 +57,18 @@ that make up the total service. There are parts that **you** manage as well
 as portions the **vendor** manages. The portions the vendor manages and you
 are charged for is the **unit of consumption**
 
-1. On-Premises: The individual manages all components from data to facilities.
+1. On-Premises: Running in a building that your company owns. The individual manages all components from data to facilities. Can be expensive.
 Provides the most flexibility, but also most IT intensive.
 2. Data Center Hosting: Place equipment in a building managed by a vendor.
 You pay for the facilities only.
 3. Infrastructure as a Service (IaaS): Vendor manages facilities and everything
 else related to servers up to the OS. You pay per second or minute for the OS
 used to the vendor. Lose some flexibility, but big risk reductions.
+Vendor maintains Facilities, servers, infrastructures, Virtulization , OS etc. You
+consume the OS. e.g EC2.
 4. Platform as a Service (PaaS): Good for running an application only. The
 unit of consumption is the runtime environment. You manage the application
-and the data, but the vendor manges all else.
+and the data, but the vendor manges all else. e.g. If you want to run a Python application, the vendor provides Python runtime. (You consume Runtime). e.g. Heroku
 5. Software as a Service (SaaS): You consume the software as a service. This
 can be Outlook or Netflix. There are almost no risks or additional costs, but
 very little control.
