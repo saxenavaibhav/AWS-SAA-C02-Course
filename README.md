@@ -36,7 +36,9 @@ Cloud computing provides
 human interaction.
 2. Broad Network Access: Access services over any networks on any devices using
 standard protocols and methods.
-3. Resource Pooling: Economies of scale, cheaper service.
+3. Resource Pooling: Economies of scale, cheaper service. 
+    - There is a sense of location independence. No control or knowledge over the exact location of resources.
+    - Resources are pooled to server multiple customers using a multi-tenant model.
 4. Rapid Elasticity: Scale up and down automatically in response to system load.
 5. Measured Service: Usage is measured. Pay only for what you consume.
 
