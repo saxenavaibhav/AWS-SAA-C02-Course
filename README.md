@@ -44,9 +44,9 @@ standard protocols and methods.
 
 ### Public vs Private vs Multi Cloud
 
-- Public Cloud: using 1 public cloud such as AWS, Azure, Google Cloud.
-- Private Cloud: using on-premises real cloud. Must meet 5 requirements.
-- Multi-Cloud: using more than 1 public cloud in one deployment.
+- Public Cloud: using 1 public cloud such as AWS, Azure, Google Cloud. Must meet 5 requirements of Cloud and must be available to general public.
+- Private Cloud: Using on-premises real cloud (but dedicated only to you). Must meet 5 requirements. e.g. AWS Outposts, Google Anthos etc.
+- Multi-Cloud: using more than 1 public cloud in one deployment. e.g. Using AWS and Azure. If one provider fails, other part of your system will work.
 - Hybrid Cloud: using public and private clouds in one environment
   - This is **NOT** using Public Cloud and Legacy on-premises hardware.
 
