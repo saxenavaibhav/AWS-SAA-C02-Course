@@ -73,7 +73,7 @@ and the data, but the vendor manges all else. e.g. If you want to run a Python a
 can be Outlook or Netflix. There are almost no risks or additional costs, but
 very little control. You consume the application.
 
-![Optional Text](./images/Screenshot 2020-06-12 at 7.23.57 PM.png)
+![Optional Text](./images/cloudservicemodels.png)
 
 
 There are additional services such as *Function as a Service*,
