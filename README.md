@@ -113,7 +113,8 @@ connections.
 #### Regions
 
 AWS Region is an area of the world they have selected for a full deployment of
-AWS infrastructure.
+AWS infrastructure. (e.g. Full Compute, Storage, DB, AI, Analytics etc.)
+When you interact with a service, you interact with that service in that region (EC2 in Ohio is different than EC2 in Mumbai). This means you can use these regions to design systems that can withstand global disasters.
 
 Areas such as countries or states
 
@@ -123,17 +124,18 @@ Areas such as countries or states
 - Beijing
 - London
 - Paris
+- Mumbai
 
 AWS can only deploy regions as fast as their planning allows.
-Regions are often not near their customers.
+Regions are often not near their customers. So AWS offers Edfe locations.
 
 #### AWS Edge Locations
 
 Local distribution points. Useful for services such as Netflix so they can store
-data closer to customers for low latency high speed transfers.
+data closer to customers for low latency high speed transfers. Generally th efuther the data is stored from the customer, higher is the latency.
 
 If a customer wants to access data stored in Brisbane, they will stream data
-from the Sydney Region through an Edge Location hosted in Brisbane.
+from the Sydney Region through an Edge Location hosted in Brisbane. As they want to stream data from an Edge location closer to them.
 
 #### AWS Management
 
@@ -160,45 +162,64 @@ Region Name: Asia Pacific (Sydney)
 Region Code: ap-southeast-2
 
 AWS will provide between 2 and 6 AZs per region.
-AZs are isolated compute, storage, networking, power, and facilities.
+AZs are isolated compute, storage, networking, power, and facilities within a region. If a region expereiences an isolated issue (e.g. Gas explosion etc.) and this issue is limited to a certain part of a region (one AZ), this will probably have other AZ fully functional. If you have a system that uses six virtual services, you can place two in each AZ.
 Components are allowed to distribute load and resilience by using multiple zones.
 
-AZs are connected to each other with high speed redundant networks.
+AZs are connected to each other with high speed redundant networks. Services can be placed in multiple AZ to make them resilient.
 
 #### Service Resilience
 
 1. Globally Resilient: IAM or Route 53. No way for them to go down. Data is
-replicated throughout multiple regions.
+replicated throughout multiple regions. They can tolerate failure of multiple regions without going down.
 2. Region Resilient: Operate as separate services in each region. Generally
-replicate data to multiple AZs in that region.
+replicate data to multiple AZs in that region. This means if one AZ fails, service can continue working, but if the region fails, the service fails.
 3. AZ Resilient: Run from a single AZ. It is possible for hardware to fail in an
 AZ and the service to keep running because of redundant equipment, but should
 not be relied on.
 
 ### AWS Default VPC
 
-VPC is a virtual network inside of AWS.
-A VPC is within 1 account and 1 region which makes it regionally resilient.
-A VPC is private and isolated until decided otherwise.
+VPC is a virtual/private network inside of AWS.
+They can be used to connect your private networks to your on-premises network when creating a hybrid envirionment.
+It also lets you connect to other cloud deployments when creating a multi-cloud environment.
 
-One default VPC per region. Can have many custom VPCs which are all private
-by default.
+A VPC is within 1 account and 1 region which makes it regionally resilient.
+A VPC is private and isolated until decided otherwise. Services deployed in the same VPC can communicate but VPC is isolated from other VPC's and from the public AWS and the internet (unless you configure otherwise).
+
+Types of VPC:
+
+- Default VPC (One default VPC per region, created by AWS, less flexible)
+- Custom VPC (Can have many custom VPCs which are all private by default). Can be linked to other VPX.
+
+![Optional Text](./images/vpc1.png)
 
 #### Default VPC Facts
 
 VPC CIDR - defines start and end ranges of the VPC.
-IP CIDR of a default VPC is always: **172.31.0.0/16**
+Custom VPC can have multiple IP ranges but IP CIDR of a default VPC is always: **172.31.0.0/16**
 
-Configured to have one subnet in each AZ in the region by default.
+A region can have multiple AZ, each being an independent pool of infrastructure. The way a VPC provides  resilience is that it can be sub-divided into Subnets. each subnet inside a VPC is located inside one AZ.
+This is set on creation and can never be changed.
+Default VPC is configured to have one subnet in each AZ in the region by default.
+Each of thse subnets use a part of the range of IP addresses in CIDR range. Tehy can't overlap. Each subnet will also define IP ranges that any private services inside that will use.
 
-Subnets are given one section of the IP ranges for the default service.
+So the way a VPC achieves resilience is by geting deployed to a region and is broken down into subnets.
+Each subnet is isnide one AZ. If one AZ fails, the subnet in that AZ also fails. Other subnets located in other AZ will continue to operate normally.
+
+- One VPC per region - can be removed and recreated.
+- Default VPC CIDR is always 172.31.0.0./16. Can't be changed. The number of IP Addresses available in default VPC is fairly large as it uses /16 range.
+- A smaller /30 subnet is created in each AZ in the region.
+
+NOTE: Higher the CIDR /number is (16, 20 etc), smaller the network is. (e.g. /17 is half the size of /16).
+Two /17's will fit into a /16, sixteen /20 subnets can fit into one /16.
+
+- With a VPC you are provided an Internet Gateway whichallows the VPC to connect to internet and vice versa, a security group and NACL.
+- By default anything placed in a default VPC is assigned a public IPv4 address.
+
 In general do not use the Default VPC in a region because it is not flexible.
 
-Default VPC is large because it uses the /16 range.
-A subnet is smaller such as /20
-The higher the / number is, the smaller the grouping.
+![Optional Text](./images/vpc2.png)
 
-Two /17's will fit into a /16, sixteen /20 subnets can fit into one /16.
 
 ### Elastic Compute Cloud (EC2)
 
