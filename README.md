@@ -230,36 +230,38 @@ Default compute service. Provides access to virtual machines called instances.
 The unit of consumption is an instance
 EC2 instance is configured to launch into a single VPC subnet.
 Private service by default, public access must be configured.
-The VPC needs to support public access. If you use a custom VPC then you must
+To allow public access, the VPC needs to support public access. If you use a custom VPC then you must
 handle the networking on your own.
 
-EC2 deploys into one AZ. If it fails, the instance fails.
+EC2 deploys into one AZ. If it fails, the instance fails. [EC2 is AZ resilent]
 
-Different sizes and capabilities all use On-Demand Billing - Per second.
+Different sizes and capabilities - all use On-Demand Billing - Per second.
 Only pay for what you consume.
 
-Charge for running the instance, CPU, memory and storage.
-Extra cost for any commercial software the instance deploys with.
+There is charge for running the instance, CPU, memory and storage.
+Extra cost for any commercial software the instance is launched with.
 
-Local on-host storage or **Elastic Block Storage**
+There are two types of storage for EC2: Local on-host storage or **Elastic Block Storage**
 
-Pricing based on:
+EC2 pricing based on:
 
 - CPU
 - Memory
 - Storage
 - Networking
 
-#### Running State
+#### Instance States
 
-Charged for all four categories.
+#### Running State (When you launch an instance after it finishes provisioning)
+
+In running state you are charged for all four categories.
 
 - Running on a physical host using CPU.
 - Using memory even with no processing.
 - OS is stored on disk allocated
 - Networking is always ready to transfer information.
 
-#### Stopped State
+#### Stopped State (When you shut down a runnung instance)
 
 Charged for EBS storage  only.
 
@@ -268,37 +270,31 @@ Charged for EBS storage  only.
 - Networking is not running
 - Storage is allocated to the instance for the OS.
 
-#### Terminated State
+#### Terminated State (When you terminate a running or stopped instance)
 
 No charges, deletes the disk and prevents all future charges.
 
-#### AMI (Server Image)
+#### AMI (Amazon Machine Image)
 
 AMI can use used to create an instance or created from an instance.
-AMIs in one region are not available from other regions.
 
-Contains:
 
-- Permissions: control which accounts can and can't use the AMI.
+AMI Contains:
 
-  - Public: Anyone can launch it.
+- Permissions: Control which accounts can and can't use the AMI.
 
-  - Owner - Implicit allow, only the owner can use it  spin up new instances
+  - Public AMI: Anyone can launch instances from it.
+
+  - Owner - Implicit allow, only the owner can use it spin up new instances
 
   - Explicit - owner grants access to AMI for specific AWS accounts
 
-- Root Volume: contain the **Boot Volume**
+- Root Volume: contain the **Boot Volume**. Drive that boots the OS.
 
 - Block Device Mapping: links the volumes that the AMI has and
 how they're presented to the operating system. Determines which volume is a
 boot volume and which volumes is a data volume.
 
-AMI Types:
-
-- Amazon Quick Start AMIs
-- AWS Marketplace AMIs
-- Community AMIs
-- Private AMIs
 
 #### Connecting to EC2
 
@@ -306,8 +302,12 @@ AMI Types:
 - Linux SSH protocol, Port 22
 
 Login to the instance using an SSH key pair.
-Private Key - Stored on local machine to initiate connection.
-Public Key - AWS places this key on the instance.
+Private Key - Stored on local machine to initiate connection. Downloadable only once. AWS does not keep it.
+Public Key - AWS places this key on the instance. Kept on teh instance.
+
+You can connect to an instance if the private key you use to login matches the public key stored on the instance.
+
+For windows, you use the private key to get the local administrator password which you use to login.
 
 ### S3 (Default Storage Service)
 
