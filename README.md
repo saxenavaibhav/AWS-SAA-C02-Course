@@ -355,7 +355,7 @@ S3 is object storage - Not file or block. Good for images, video files, not good
 
 ### CloudFormation Basics
 
-Templates can modify infrastructure to, create, update and delete.
+Cloudformation is a tool that lets you create, update and delete infrastructure in AWS in a consistent and repeatable way using templates.
 
 Written in YAML or JSON
 
@@ -385,13 +385,14 @@ Mappings:
 ## Decision making in the template. Things will only occur if a condition is met.
 ## Step 1: create condition
 ## Step 2: use the condition to do something else in the template
+## e.g. Used to create a resource only in production.
 Conditions:
   set of conditions
 
 Transform:
   set of transforms
 
-## The only mandatory field of this section
+## The only mandatory field of this section. This is a list of resources. If resources are added/removed ## to this section and template reapplied, physical resources are added/removed.
 Resources:
   set of resources
 
@@ -405,6 +406,8 @@ Outputs:
 
 An example which creates an EC2 instance
 
+Resources inside a Cloudformation template are called Logical resources. Logical resource in this case is called 'Instance'. Logical resource has a type (e.g. AWS::EC2::Instance). Cloud formation uses this type to understand what is to be created. Logical resources also have properties which Cloud Formation uses to configure the resources in a specific way.
+
 ```YAML
 Resources:
   Instance: ## Logical Resource
@@ -415,8 +418,11 @@ Resources:
       KeyName: !Ref Keyname
 ```
 
-Once a template is created, AWS will make a stack. This is a living and active
+Once a template is created, AWS will make a stack. A stack contains all the logical resources th etemplate tells it to contain. This is a living and active
 representation of a template. One template can create infinite amount of stacks.
+
+![Optional Text](./images/cf1.png)
+
 
 For any **Logical Resources** in the stack,
 CF will make a corresponding **Physical Resources** in your AWS account.
