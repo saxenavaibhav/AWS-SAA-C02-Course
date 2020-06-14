@@ -423,9 +423,10 @@ representation of a template. One template can create infinite amount of stacks.
 
 ![Optional Text](./images/cf1.png)
 
-
 For any **Logical Resources** in the stack,
 CF will make a corresponding **Physical Resources** in your AWS account.
+
+When you use a template to create a stack, CF will take that template, create a stack with logical resources inside then create physical resources that match.
 
 It is cloud formations job to keep the logical and physical resources in sync.
 
