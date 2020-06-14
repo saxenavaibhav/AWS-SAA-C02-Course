@@ -309,12 +309,14 @@ You can connect to an instance if the private key you use to login matches the p
 
 For windows, you use the private key to get the local administrator password which you use to login.
 
-### S3 (Default Storage Service)
+If you see a Security error on connecting to EC2 instance, **chmod 400 <pemFile> **
+
+### S3 (Default Storage Service) [Regionally resilient]
 
 Global Storage platform. Runs from all regions and is a public service.
 Can be accessed anywhere from the internet with an unlimited amount of users.
 
-This should be the default storage platform
+This should be the default storage platform. Good for storing MOvies, Audio, Photos etc.
 
 S3 is an object storage, not file, or block storage.
 You can't mount an S3 Bucket.
@@ -340,11 +342,16 @@ Other components:
 - Data has a primary home region. Will not leave this region unless told.
 - Blast Radius = Region
 - Unlimited number of Objects
-- Name is globally unique
-- All objects are stored within the bucket at the same level.
+- An AWS account can have upto 100 buckets. Can be increased to 1000 using support request.
+- Bucket name is globally unique
+- Bucket names can be 3-63 characters, all lower case, no underscore.
+- Bucket names start start with a lowercase letter or number and cannot be IP formatted (e.g. 1.1.1.1)
+- All objects are stored within the bucket at the same level. Although you will see folders in S3 but internally its all a flat structure. 
 
 If the objects name starts with a slash such as `/old/Koala1.jpg` the UI will
 present this as a folder. In actuality this is not true, there are no folders.
+
+S3 is object storage - Not file or block. Good for images, video files, not good for OS etc. Since its not block storage, it can't be mounted (e.g. K:/ to /images).
 
 ### CloudFormation Basics
 
