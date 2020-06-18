@@ -436,48 +436,61 @@ A template can be updated and then used to update the same stack.
 
 Collects and manages operational data on your behalf.
 
-Three products in one
+Three products in one:
+Cloudwatch manages collection of metrics, monitoring the metrics and performing actions based on metrics.
 
-- Metrics: data relating to AWS products, apps, on-prem solutions
-- Logs: collection, monitoring
-- Events: event hub
-  - If an AWS service does something, CW events can perform another action
+- Metrics:  This is data relating to AWS products, apps or on-prem solutions (e.g. CPU utilization of EC2, visitors/second etc.). It gathers some metrics natively. e.g CPU utilization etc. for EC2 is done by default. SOmetimes metric collection is done by installing a Cloudwatch agent. For capturing metrics outside of AWS, other Cloud environments, or withing on-premises environments you need to install Cloudwatch Agent. Monitoring certain things inside products which aren't exposed to AWS needs the Agent. e.g. which process are running in an EC2 instances. 
+- Logs: Allows collection, monitoring and actions based on logging dtaa. e.g windows event logs, server logs, firewall logs. For on-premises or for anything not directly exposed to AWS, you need to install Cloudwatch agent.
+- Events: Features
+  - If an AWS service does something (EC2 teminated, stopeed etc), CW events can perform another action
   - Generate an event to do something at a certain time of day or time of week.
+
+![Optional Text](./images/cloudwatch.png)
 
 #### Namespace
 
-Container for monitoring data.
+This is a Container for monitoring data. Its a way to separate things into different areas.
 Naming can be anything so long as it's not `AWS/service` such as `AWS/EC2`.
 This is used for all metric data of that service
+Namespaces contain related metrics.
 
 #### Metric
 
-Time ordered set of data points such as:
+Time ordered set of related data points such as:
 
 - CPU Usage
 - Network IN/OUT
-- Disk IO
+- Disk Utilization
 
-This is not for a specific server. This could get things from different servers
+These are all metrics. If you imagine a set of servers logging CPU utilization, it will be time ordered. It will start when you enable monitoring and will stop when you disable monitoring.
+A metric is not for a specific server. CPU utilization is the metric which might be receiving data for lots of EC2 instances so we need a way to identify which things log data to a soecific metric.   
 
-Anytime CPU Utilization is reported, the **datapoint** will report
+#### Datapoint
 
-- Timestamp = 2019-12-03
-- Value = 98.3
+Let us say we have a metric (CPU Utilization). Everytime a server measures its utilization and sends it over to Cloudwatch, that goes into the CPU utilization metric. Each one of those measurement, e.g everytime it reports CPU, that measurement is called a datapoint. A datapoint consists of 2 things:
 
-**Dimensions** separate data points for different **things** or
-**perspectives** within the same metric
+- Timestamp = 2019-12-03T08:45:45Z
+- Value = 98.3 (98.3% CPU utilization)
+
+Now, CPU utilization metric may contain data for many servers. We separate the data for these using Dimensions.
+
+**Dimensions** - Let us say we have 3 EC2 instances A, B and C and each of these instances send data points in AWS/EC2 namespace for the CPU utilization metric. If 1 instance is sending one data point per socond, then this metric will receive 3 data points per second one from each EC2 isntance. 
+Along with data points it also sends Dimensions. Dimensions are name-value pairs that allow Cloudwatch to separate things or provide different perspective of things in a metric. e.g. AWS can send instance ID and instance type as Dimensions. This allows us to view data points for a given instance.
 
 #### Alarms
 
-Has two states `ok` or `alarm`.State can send an SNS or action.
+Alarms are created and linked to a specific metric. Then when you configure that alarm, it will take an action based on the metric. 
+Has two states `ok` (Everything is OK) or `alarm` (Soething bad has happened).Based on this you can send an SNS or action. e.g. Billing Alarm for monthly estimated bill > $10, trigger alarm.
 Third state can be insufficient data state. Not a problem, just wait.
 
 ### Shared Responsibility Model
 
-AWS: Responsible for security **OF** the cloud
+AWS: Responsible for security **OF** the cloud (e.g. Security of AWS regions, AZ and Edge locations).
+Similarly the security of compute, storage, database, networking etc. is also managed by AWS.
 
-Customer: Responsible for security **IN** the cloud
+Customer: Responsible for security **IN** the cloud (e..g Client side data encryption, integrity and authentication, OS, N/W firewall configuration )
+
+![Optional Text](./images/shared-responsibility.png)
 
 ### High Availability (HA), Fault-Tolerance (FT), and Disaster Recover (DR)
 
