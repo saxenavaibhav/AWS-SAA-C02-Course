@@ -33,19 +33,19 @@ and show support <https://learn.cantrill.io.>
 Cloud computing provides
 
 1. On-Demand Self-Service: Provision and terminate using a UI/CLI without
-human interaction.
+human interaction. This can include VM, storage etc. Don't need a hum vendor to provison these.
 2. Broad Network Access: Access services over any networks on any devices using
-standard protocols and methods.
+standard protocols and methods. e.g You can access services using standard means such as SSH, Remote desktop, HTTP etc.
 3. Resource Pooling: Economies of scale, cheaper service. 
-    - There is a sense of location independence. No control or knowledge over the exact location of resources.
-    - Resources are pooled to server multiple customers using a multi-tenant model.
-4. Rapid Elasticity: Scale up and down automatically in response to system load.
-5. Measured Service: Usage is measured. Pay only for what you consume.
+    - There is a sense of location independence. Customer has no control or knowledge over the exact location of resources. You can tell AWS to deply a VM in a certain region but they are free to use whatever data center/hardware they want.
+    - Resources are pooled to server multiple customers using a multi-tenant model. Cloud vendor buys resources in bulk thereby being cheaper as it allocates a percentage of this pool to every customer.
+4. Rapid Elasticity: Scale up and down (at times) automatically in response to system load. To the consumer the capabilities available for provisoning appear to be unlimited.
+5. Measured Service: Usage is measured, monitored, controlled, reported and billed. Pay only for what you consume.
 
 ### Public vs Private vs Multi Cloud
 
 - Public Cloud: using 1 public cloud such as AWS, Azure, Google Cloud. Must meet 5 requirements of Cloud and must be available to general public.
-- Private Cloud: Using on-premises real cloud (but dedicated only to you). Must meet 5 requirements. e.g. AWS Outposts, Google Anthos etc.
+- Private Cloud: Using on-premises real cloud (but dedicated only to you). Must meet 5 requirements. e.g. AWS Outposts, Google Anthos, Azure Stack etc.
 - Multi-Cloud: using more than 1 public cloud in one deployment. e.g. Using AWS and Azure. If one provider fails, other part of your system will work.
 - Hybrid Cloud: using public and private clouds in one environment
   - This is **NOT** using Public Cloud and Legacy on-premises hardware.
@@ -53,25 +53,19 @@ standard protocols and methods.
 ### Cloud Service Models
 
 The *Infrastructure Stack* or *Application Stack* contains multiple components
-that make up the total service. There are parts that **you** manage as well
-as portions the **vendor** manages. The portions the vendor manages and you
-are charged for is the **unit of consumption**
+that make up the total service.(e.g. Facilities, Infrastructure, servers, virtulization, OS, container, OS, runtime, data, application). There are parts that **you** manage as well as portions the **vendor** manages. The portions the vendor manages and you are charged for is the **unit of consumption**
 
-1. On-Premises: Running in a building that your company owns. The individual manages all components from data to facilities. Can be expensive.
+1. On-Premises: Running in a building that your company owns. Your business buys all parts of stack, resources and manages risk. The individual manages all components from data to facilities. Can be expensive.
 Provides the most flexibility, but also most IT intensive.
 2. Data Center Hosting: Place equipment in a building managed by a vendor.
 You pay for the facilities only.
-3. Infrastructure as a Service (IaaS): Vendor manages facilities and everything
-else related to servers up to the OS. You pay per second or minute for the OS
+3. Infrastructure as a Service (IaaS): [You consume the OS here] Vendor manages facilities and everything
+else related to servers up to the OS. You pay per second,per minute or per hour for the Virtual machine. YOu pay when you use the VM.
 used to the vendor. Lose some flexibility, but big risk reductions.
 Vendor maintains Facilities, servers, infrastructures, Virtulization , OS etc. You
-consume the OS. e.g EC2.
-4. Platform as a Service (PaaS): Good for running an application only. The
-unit of consumption is the runtime environment. You manage the application
-and the data, but the vendor manges all else. e.g. If you want to run a Python application, the vendor provides Python runtime. (You consume Runtime). e.g. Heroku (You can host your app here).
-5. Software as a Service (SaaS): You consume the software as a service. This
-can be Outlook or Netflix. There are almost no risks or additional costs, but
-very little control. You consume the application.
+consume the OS. e.g EC2 uses IAAS service model.
+4. Platform as a Service (PaaS): [You consume the runtime here] Good for running an application only. The unit of consumption is the runtime environment. You manage the application and the data, but the vendor manges all else. e.g. If you want to run a Python application, the vendor provides Python runtime. (You consume Runtime). e.g. Heroku allows you to host your code as an application.
+5. Software as a Service (SaaS): [You consume the application here] You consume the software as a service. This can be Outlook or Netflix. There are almost no risks or additional costs, but very little control. You consume the application.
 
 ![Optional Text](./images/cloudservicemodels.png)
 
@@ -497,7 +491,8 @@ Customer: Responsible for security **IN** the cloud (e..g Client side data encry
 #### High Availability (HA)
 
 - Aims to **ensure** an agreed level of operational **performance**, usually
-**uptime**, for a **higher than normal period**
+**uptime**, for a **higher than normal period** [It does not mean no outages. It is a system designed to offer services as often as possible. When it fails its components can be replaced and fixed.]
+- Keep a system operational. Fast or automatic recovery of issues.
 - Instead of diagnosing the issue, swap it out.
 - Redundant hardware to minimize downtown
 - User disruption is not ideal, but is allowed
@@ -508,20 +503,20 @@ Customer: Responsible for security **IN** the cloud (e..g Client side data encry
 
 #### Fault-Tolerance (FT)
 
-- System can **continue operating properly**
+- Property that enables a system to **continue operating properly** in the event of failure of some of its components. System should continue working and serve customers even in the event of a failure.
 in the event of the **failure of some** (one or more faults within) of its
 **components**
 - Fault tolerance is much more complicated than high availability and more
 expensive. Outages must be minimized and the system needs levels of
 redundancy.
 - An airplane is an example of system that needs Fault Tolerance. It has
-more engines than it needs for redundancy.
+more engines than it needs for redundancy. So even it one engine fails, airplane will continue flying .
 
 Example:
 A patient is waiting for a life saving surgery and is under anesthetic.
 While being monitored, the life support system is dosing medicine.
 This type of system cannot only be highly available, even a movement of
-interruption is deadly.
+interruption is deadly. So the life support system will communicate simultaneously with two servers so even it one fails system continues to work.
 
 #### Disaster Recover (DR)
 
@@ -543,25 +538,28 @@ system in place.
 
 ### Domain Name System (DNS)
 
-DNS is a discovery service. Translates machines into humans and vice-versa.
-It is a huge database and has to be distributed.
+DNS is a discovery service. Translates machines into humans and vice-versa. One function of DNS is to translate domain name into IP addresses. e.g. www.amazon.com to 104.98.10.2
+
+It is a huge database and has to be distributed and resilient.
+
+When you enter www.amazom.com from your laptop, it just loads. Behind the scenes, for your computer to connect to www.amazon.com, it uses IP addresses. This conversion is transparent to you as your computer is connecting directly to the DNS system or its been configured to talk to a DNS resolver server on your behalf. This resolver server is running on your internet provider or your internet router. 
 
 Parts of the DNS system
 
 - DNS Client: Piece of software running on the OS for a device you're using.
 - Resolver: Software on your device or server which queries DNS on your behalf.
-- Zone: A part of the DNS database.
-  - This would be www.amazon.com
-  - What the data is, the substance
-- Zonefile: physical database for a zone
-  - How physically that data is stored
-- Nameserver: where zonefiles are hosted
+- Zone: A part of the DNS database. Zone is stored as a Zone file.
+  - Somewhere on the internet is one Zone file for Amazon.com. This file has a DNS record inside it which links the name (www) to the IP address your computer needs to communicate with that website. This Zone file is hosted by a NameServer.
+  So if you query this zone for www.amazon.com and then use teh result of that query (IP address), your laptop can communicate with the web server. This zone file can be located on potentially one or two of millions of name servers.
 
-Steps:
+DNS client => Your laptop, phone, PC etc.
+Resolver => Software on your device or a server which queries DNS on your behalf.
+(e.g. Client talks to DNS resolver)
+DNS Zone=> A part of teh DNS database (e.g. www.amazon.com)
+Zonefile =>Physical database for a Zone
+Nameserver => Where zonefiles are hosted.
 
-Find the Nameserver which hosts a particular Zonefile.
-Query that Nameserver for a record with that Zone.
-It then passes the information back to the client.
+DNS resolver finds the nameserver that hosts a particular Zone file and then query that nameserver for a record that is in the zone file and then passes it back to the DNS client. 
 
 #### DNS Root
 
@@ -571,8 +569,10 @@ DNS names are read right to left with multiple parts separated by periods.
 `www.netflix.com.`
 
 The period is assumed to be there in a browser when it's not present.
-The DNS Root is hosted on DNS Root Servers (13). These are hosted
-by 12 major companies.
+The DNS Root is hosted on 13 DNS Root Servers 13. These are hosted
+by 12 major companies. These companies only host the DNS root server and not the root zone database each of which is represented by a letter (!-M) and each is managed by a different company (Verisign is an exception which manages 2 servers). These servers are the entry points. 
+How your computer finds these entry servers => Your computer uses a resolver server 
+The OS (Windows etc.) has a root hint file which is a containing a list of these root servers so is a pointer to the DNS root server.  
 
 **Root Hints** is a pointer to the DNS Root server
 
@@ -619,9 +619,9 @@ allowing domain registration
 
 #### Register Domains
 
-Has relationships with all major registries
+Has relationships with all major domain registries
 
-- Route 53 will check with the top level domain to see if the name is available
+- Route 53 will check with the registry top level domain to see if the name is available
 - Router 53 creates a zonefile for the domain to be registered
 - Allocates nameservice for that zone
   - Generally four of these for one individual zone
