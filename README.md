@@ -77,28 +77,22 @@ There are additional services such as *Function as a Service*,
 
 ## AWS-Fundamentals
 
-### AWS Support Plans
-
-- Basic (free)
-- Developer (one user, general guidance)
-- Business (multiple users, personal guidance)
-- Enterprise (Technical account manager)
-
 ### Public vs Private Services
 
-Refers to the networking only, not permissions.
+Private and public here refers to the networking (connectivity) only, not permissions.
 
 - Public Internet: AWS is a public cloud platform and connected to the public
-internet. It is not on the public internet, but is next to it.
-- AWS Public Zone: Attached to the Public Internet.
-S3 Bucket is hosted in the Public Zone, not all services are.
-Just because you connect to a public service,
-that does not mean you have permissions to access it.
-- AWS Private Zone: No direct connectivity is allowed between the AWS Private
-Zone and the public cloud unless this is configured for that service.
-This is done by taking a part of the private service and projecting it into the
-AWS public zone which allows public internet to make inbound or outbound
-connections.
+internet. It is not on the public internet, but is next to it. A public AWS service is one which can be connected to from anywhere where you have unrestricted internet access.
+
+AWS has 2 zones:
+
+- AWS Public Zone: Attached to the Public Internet. An AWS service to be classified as public, it must run from this zone. e.g. S3 Bucket is hosted in the Public Zone and you can connect to it via the public internet. [You may or may not have permissions though]
+Just because you connect to a public service, that does not mean you have permissions to access it.
+- AWS Private Zone: This has no direct connectivity to AWS public zone or the public internet. Anything created in this zone is private by default. 
+You can divide this private zone into individual, isolated private networks using a service called Virtual private cloud (VPC). You can create services inside this private zone (e.g. EC2 instances) and by default this has no way of connecting to the public internet and to the AWS public zone. You can in some cases configure private services to have public access or in some cases to make them public. 
+So the EC2 instance in private zone can be allowed to connect out but nothing from outside can reach it.
+It is also possible to make the instance public so you can connect to it from the public internet. But essentially when you make a private service public, what you are doing is, you put a part of it in the public internet that you can then connect to from public internet.
+If you don't make a service public then the only things that can connect to it are the things that are in the same private network or other networks you create private networking links with (such as on premises networks).  
 
 ![Optional Text](./images/publicprivateservice.png)
 
@@ -126,7 +120,7 @@ Regions are often not near their customers. So AWS offers Edfe locations.
 #### AWS Edge Locations
 
 Local distribution points. Useful for services such as Netflix so they can store
-data closer to customers for low latency high speed transfers. Generally th efuther the data is stored from the customer, higher is the latency.
+data closer to customers for low latency high speed transfers. Generally the futher the data is stored from the customer, higher is the latency and slower the data transfer. So edge locations are good for fast and efficient data transfer.
 
 If a customer wants to access data stored in Brisbane, they will stream data
 from the Sydney Region through an Edge Location hosted in Brisbane. As they want to stream data from an Edge location closer to them.
@@ -140,14 +134,14 @@ Some services are global such as IAM
 #### Region's 3 Benefits
 
 - Geographical Separation
-  - Useful for natural disasters
+  - Useful for natural disasters & terrorist attacks
   - Provide isolated fault domain
   - Regions are 100% isolated
 - Geopolitical Separation
   - Different laws change how things are accessed
   - Stability from political events
 - Location Control
-  - Tune architecture for performance
+  - Tune architecture for performance. Place infra as close to your customers as possible
   - Duplicate infrastructure at closer points to customers
 
 #### Regions and AZs
@@ -155,7 +149,7 @@ Some services are global such as IAM
 Region Name: Asia Pacific (Sydney)
 Region Code: ap-southeast-2
 
-AWS will provide between 2 and 6 AZs per region.
+AWS will provide between 2 and 6 (a-f) AZs per region.
 AZs are isolated compute, storage, networking, power, and facilities within a region. If a region expereiences an isolated issue (e.g. Gas explosion etc.) and this issue is limited to a certain part of a region (one AZ), this will probably have other AZ fully functional. If you have a system that uses six virtual services, you can place two in each AZ.
 Components are allowed to distribute load and resilience by using multiple zones.
 
@@ -177,7 +171,7 @@ VPC is a virtual/private network inside of AWS.
 They can be used to connect your private networks to your on-premises network when creating a hybrid envirionment.
 It also lets you connect to other cloud deployments when creating a multi-cloud environment.
 
-A VPC is within 1 account and 1 region which makes it regionally resilient.
+A VPC is within 1 account and 1 region which makes it regionally resilient. VPC operates from multiple AZ in a AWS region.
 A VPC is private and isolated until decided otherwise. Services deployed in the same VPC can communicate but VPC is isolated from other VPC's and from the public AWS and the internet (unless you configure otherwise).
 
 Types of VPC:
@@ -185,29 +179,31 @@ Types of VPC:
 - Default VPC (One default VPC per region, created by AWS, less flexible)
 - Custom VPC (Can have many custom VPCs which are all private by default). Can be linked to other VPX.
 
+VPC's are created within an AWS account (in a specific AWS region). A region can have multiple custom VPC's created within it. Unless you configure otherwise, there is no way for a VPC to communicate outside its private network. 
+
 ![Optional Text](./images/vpc1.png)
 
 #### Default VPC Facts
 
-VPC CIDR - defines start and end ranges of the VPC.
+
+VPC CIDR - defines start and end ranges of the VPC. Everything inside that VPC uses CIDR range of the VPC.
 Custom VPC can have multiple IP ranges but IP CIDR of a default VPC is always: **172.31.0.0/16**
 
-A region can have multiple AZ, each being an independent pool of infrastructure. The way a VPC provides  resilience is that it can be sub-divided into Subnets. each subnet inside a VPC is located inside one AZ.
-This is set on creation and can never be changed.
+A region can have multiple AZ, each being an independent pool of infrastructure. The way a VPC provides  resilience is that it can be sub-divided into Subnets. Each subnet inside a VPC is located inside one AZ. This is set on creation and can never be changed.
 Default VPC is configured to have one subnet in each AZ in the region by default.
-Each of thse subnets use a part of the range of IP addresses in CIDR range. Tehy can't overlap. Each subnet will also define IP ranges that any private services inside that will use.
+Each of thse subnets use a part of the range of IP addresses in CIDR range. They can't overlap. Each subnet will also define IP ranges that any private services inside that will use.
 
 So the way a VPC achieves resilience is by geting deployed to a region and is broken down into subnets.
-Each subnet is isnide one AZ. If one AZ fails, the subnet in that AZ also fails. Other subnets located in other AZ will continue to operate normally.
+Each subnet is inside one AZ. If one AZ fails, the subnet in that AZ also fails. Other subnets located in other AZ will continue to operate normally.
 
-- One VPC per region - can be removed and recreated.
-- Default VPC CIDR is always 172.31.0.0./16. Can't be changed. The number of IP Addresses available in default VPC is fairly large as it uses /16 range.
-- A smaller /30 subnet is created in each AZ in the region.
+- One default VPC per region - can be removed and recreated.
+- Default VPC CIDR is always 172.31.0.0./16. Can't be changed. The number of IP Addresses available in default VPC is fairly large as it uses /16 CIDR range.
+- A smaller /20 subnet is created in each AZ in the region.
 
 NOTE: Higher the CIDR /number is (16, 20 etc), smaller the network is. (e.g. /17 is half the size of /16).
 Two /17's will fit into a /16, sixteen /20 subnets can fit into one /16.
 
-- With a VPC you are provided an Internet Gateway whichallows the VPC to connect to internet and vice versa, a security group and NACL.
+- With a VPC you are provided an Internet Gateway which allows the VPC to connect to internet and vice versa, a VPC security group and NACL.
 - By default anything placed in a default VPC is assigned a public IPv4 address.
 
 In general do not use the Default VPC in a region because it is not flexible.
@@ -222,18 +218,14 @@ Default compute service. Provides access to virtual machines called instances.
 **IaaS** - Infrastructure as as Service
 
 The unit of consumption is an instance
-EC2 instance is configured to launch into a single VPC subnet.
-Private service by default, public access must be configured.
-To allow public access, the VPC needs to support public access. If you use a custom VPC then you must
-handle the networking on your own.
+EC2 instance is configured to launch into a single VPC subnet. Set when instance is launched.
+Private service by default (by default it runs in the private AWS zone), public access must be configured.
+To allow public access, the VPC needs to support public access. For Default VPC this is already configured for you but if you use a custom VPC then you must handle the networking on your own.
 
 EC2 deploys into one AZ. If it fails, the instance fails. [EC2 is AZ resilent]
 
 Different sizes and capabilities - all use On-Demand Billing - Per second.
 Only pay for what you consume.
-
-There is charge for running the instance, CPU, memory and storage.
-Extra cost for any commercial software the instance is launched with.
 
 There are two types of storage for EC2: Local on-host storage or **Elastic Block Storage**
 
@@ -243,6 +235,7 @@ EC2 pricing based on:
 - Memory
 - Storage
 - Networking
+- Extra cost for any commercial software the instance is launched with.
 
 #### Instance States
 
@@ -272,7 +265,6 @@ No charges, deletes the disk and prevents all future charges.
 
 AMI can use used to create an instance or created from an instance.
 
-
 AMI Contains:
 
 - Permissions: Control which accounts can and can't use the AMI.
@@ -296,8 +288,8 @@ boot volume and which volumes is a data volume.
 - Linux SSH protocol, Port 22
 
 Login to the instance using an SSH key pair.
-Private Key - Stored on local machine to initiate connection. Downloadable only once. AWS does not keep it.
-Public Key - AWS places this key on the instance. Kept on teh instance.
+- Private Key - Stored on local machine to initiate connection. Downloadable only once. AWS does not keep it.
+- Public Key - AWS places this key on the instance. 
 
 You can connect to an instance if the private key you use to login matches the public key stored on the instance.
 
@@ -310,20 +302,22 @@ If you see a Security error on connecting to EC2 instance, **chmod 400 <pemFile>
 Global Storage platform. Runs from all regions and is a public service.
 Can be accessed anywhere from the internet with an unlimited amount of users.
 
-This should be the default storage platform. Good for storing MOvies, Audio, Photos etc.
+This should be the default storage platform. Good for storing Movies, Audio, Photos etc.
 
 S3 is an object storage, not file, or block storage.
 You can't mount an S3 Bucket.
+
+S3 is economical and can be accessed via UI/CLI/API/HTTP etc.
 
 #### Objects
 
 Can be thought of a file. Two main components:
 
-- Object Key: File name in a bucket
+- Object Key: File name in a bucket (e.g. koala.jpg)
 - Value: Data or contents of the object
   - Zero bytes to 5 TB
 
-Other components:
+Other components of object:
 
 - Version ID
 - Metadata
@@ -334,27 +328,31 @@ Other components:
 
 - Created in a specific AWS Region.
 - Data has a primary home region. Will not leave this region unless told.
-- Blast Radius = Region
+- Blast Radius [In case of a failure the impact will be limited to the region]= Region
 - Unlimited number of Objects
 - An AWS account can have upto 100 buckets. Can be increased to 1000 using support request.
-- Bucket name is globally unique
+- Bucket name is globally unique across all regions and AWS accounts
+- Buckets can hold unlimted number of objects
 - Bucket names can be 3-63 characters, all lower case, no underscore.
 - Bucket names start start with a lowercase letter or number and cannot be IP formatted (e.g. 1.1.1.1)
 - All objects are stored within the bucket at the same level. Although you will see folders in S3 but internally its all a flat structure. 
+- Thereis a soft limit of 100 buckets per AWS account and a hard limit of 100 per account (via AWS support request).
 
 If the objects name starts with a slash such as `/old/Koala1.jpg` the UI will
-present this as a folder. In actuality this is not true, there are no folders.
+present this as a folder. In actuality this is not true, there are no folders. Folders are often referred to as prefixes in S3.
 
 S3 is object storage - Not file or block. Good for images, video files, not good for OS etc. Since its not block storage, it can't be mounted (e.g. K:/ to /images).
 
+Bu defaul other than the bucket owner nobody has access to teh bucket.
+
 ### CloudFormation Basics
 
-Cloudformation is a tool that lets you create, update and delete infrastructure in AWS in a consistent and repeatable way using templates.
+Cloudformation is a tool that lets you create, update and delete infrastructure in AWS in a consistent and repeatable way using templates. This process is automated and Cloudformation does it on your behalf.
 
-Written in YAML or JSON
+A Cloudformation template is written in YAML or JSON
 
 ```YAML
-## This is not mandatory unless a description is added
+## This is not mandatory unless a description is added. TemplateFormatVersion is the way AWS allows for extending the standards overtime. If this is omitted, this value is assumed. 
 AWSTemplateFormatVersion: "version date"
 
 ## Give details as to what this template does.
@@ -362,7 +360,7 @@ AWSTemplateFormatVersion: "version date"
 Description:
   A sample template
 
-## Can control the command line UI. The bigger your template, the more likely
+## Can control the command line UI. Controls how the different things in a CloudFormation template are presented through the AWS console UI. The bigger your template, the more likely
 ## this section is needed
 Metadata:
   template metadata
@@ -372,7 +370,7 @@ Metadata:
 Parameters:
   set of parameters
 
-## Another optional section. Allows lookup tables, not used often
+## Another optional section. Allows creation of lookup tables, not used often
 Mappings:
   set of mappings
 
