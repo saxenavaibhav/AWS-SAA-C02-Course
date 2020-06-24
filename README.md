@@ -375,8 +375,8 @@ Mappings:
   set of mappings
 
 ## Decision making in the template. Things will only occur if a condition is met.
-## Step 1: create condition
-## Step 2: use the condition to do something else in the template
+## Step 1: create condition (e.g. param = prod)
+## Step 2: use the condition to do something else in the template (e.g. creaate prod resources)
 ## e.g. Used to create a resource only in production.
 Conditions:
   set of conditions
@@ -398,7 +398,7 @@ Outputs:
 
 An example which creates an EC2 instance
 
-Resources inside a Cloudformation template are called Logical resources. Logical resource in this case is called 'Instance'. Logical resource has a type (e.g. AWS::EC2::Instance). Cloud formation uses this type to understand what is to be created. Logical resources also have properties which Cloud Formation uses to configure the resources in a specific way.
+Cloudformation uses templates which contains resources. e.g. A template that creates an EC2 instance, resources inside a Cloudformation template are called Logical resources. Logical resource in this case is called 'Instance'. Logical resource has a type (e.g. AWS::EC2::Instance). Cloud formation uses this type to understand what is to be created. Logical resources also have properties which Cloud Formation uses to configure the resources in a specific way.
 
 ```YAML
 Resources:
@@ -410,7 +410,7 @@ Resources:
       KeyName: !Ref Keyname
 ```
 
-Once a template is created, AWS will make a stack. A stack contains all the logical resources th etemplate tells it to contain. This is a living and active
+Once a template is created, AWS will make a stack. A stack contains all the logical resources the template tells it to contain. This is a living and active
 representation of a template. One template can create infinite amount of stacks.
 
 ![Optional Text](./images/cf1.png)
@@ -422,22 +422,28 @@ When you use a template to create a stack, CF will take that template, create a 
 
 It is cloud formations job to keep the logical and physical resources in sync.
 
-A template can be updated and then used to update the same stack.
+A template can be updated and then used to update the same stack. If you delete a stack its logical resources are deleted and it causes Cloudformation to delete all associated physical resources. 
+
+YOu can store templates in Source code repositories, get approval etc. before deployments.
 
 ### CloudWatch Basics
 
 Collects and manages operational data on your behalf.
 
 Three products in one:
+
 Cloudwatch manages collection of metrics, monitoring the metrics and performing actions based on metrics.
 
-- Metrics:  This is data relating to AWS products, apps or on-prem solutions (e.g. CPU utilization of EC2, visitors/second etc.). It gathers some metrics natively. e.g CPU utilization etc. for EC2 is done by default. SOmetimes metric collection is done by installing a Cloudwatch agent. For capturing metrics outside of AWS, other Cloud environments, or withing on-premises environments you need to install Cloudwatch Agent. Monitoring certain things inside products which aren't exposed to AWS needs the Agent. e.g. which process are running in an EC2 instances. 
+- Metrics:  This is data relating to AWS products, apps or on-prem solutions (e.g. CPU utilization of EC2, disk spaace usage, visitors/second etc.). It gathers some metrics natively. e.g CPU utilization etc. for EC2 is done by default. SOmetimes metric collection is done by installing a Cloudwatch agent. For capturing metrics outside of AWS, other Cloud environments, or withing on-premises environments you need to install Cloudwatch Agent. Monitoring certain things inside products which aren't exposed to AWS needs the Agent installed. e.g. which process are running in an EC2 instances. 
 - Logs: Allows collection, monitoring and actions based on logging dtaa. e.g windows event logs, server logs, firewall logs. For on-premises or for anything not directly exposed to AWS, you need to install Cloudwatch agent.
 - Events: Features
   - If an AWS service does something (EC2 teminated, stopeed etc), CW events can perform another action
   - Generate an event to do something at a certain time of day or time of week.
 
 ![Optional Text](./images/cloudwatch.png)
+
+Since Cloudwatch manages a lot of things, we need a way to keep things separate.
+Here are those ways:
 
 #### Namespace
 
@@ -448,14 +454,14 @@ Namespaces contain related metrics.
 
 #### Metric
 
-Time ordered set of related data points such as:
+A metric is a time ordered set of related data points such as:
 
 - CPU Usage
 - Network IN/OUT
 - Disk Utilization
 
 These are all metrics. If you imagine a set of servers logging CPU utilization, it will be time ordered. It will start when you enable monitoring and will stop when you disable monitoring.
-A metric is not for a specific server. CPU utilization is the metric which might be receiving data for lots of EC2 instances so we need a way to identify which things log data to a soecific metric.   
+A metric is not for a specific server. CPU utilization is the metric which might be receiving data for lots of EC2 instances so we need a way to identify which things log data to a specific metric.   
 
 #### Datapoint
 
@@ -486,24 +492,26 @@ Customer: Responsible for security **IN** the cloud (e..g Client side data encry
 
 ### High Availability (HA), Fault-Tolerance (FT), and Disaster Recover (DR)
 
-#### High Availability (HA)
+#### High Availability (HA) [Maximise uptime]
 
 - Aims to **ensure** an agreed level of operational **performance**, usually
-**uptime**, for a **higher than normal period** [It does not mean no outages. It is a system designed to offer services as often as possible. When it fails its components can be replaced and fixed.]
+**uptime**, for a **higher than normal period** [It does not mean no outages. It is a system designed to offer services as often as possible. When it fails its components can be replaced and fixed as quicly as possible often automatically.]
 - Keep a system operational. Fast or automatic recovery of issues.
-- Instead of diagnosing the issue, swap it out.
-- Redundant hardware to minimize downtown
+- Instead of diagnosing the issue, swap it out. e.g. Replace faulty server with another one.
+- Or using Redundant hardware to minimize downtime (one active and one standby)
 - User disruption is not ideal, but is allowed
   - The user might need to log back in or lose some data on their screen.
 - Maximizing a system's uptime
   - 99.9% (Three 9's) = 8.7 hours downtime per year.
   - 99.999 (Five 9's) = 5.26 minutes downtime per year.
 
-#### Fault-Tolerance (FT)
+e.g In case a tire becomes flat, you can have a spare tire and swap it out.
 
-- Property that enables a system to **continue operating properly** in the event of failure of some of its components. System should continue working and serve customers even in the event of a failure.
-in the event of the **failure of some** (one or more faults within) of its
+#### Fault-Tolerance (FT) [Operate through failure]
+
+- Property that enables a system to **continue operating properly** in the event of failure of some of its components. System should continue working and serve customers even in the event of **failure of some** (one or more faults within) of its
 **components**
+
 - Fault tolerance is much more complicated than high availability and more
 expensive. Outages must be minimized and the system needs levels of
 redundancy.
@@ -536,39 +544,43 @@ system in place.
 
 ### Domain Name System (DNS)
 
-DNS is a discovery service. Translates machines into humans and vice-versa. One function of DNS is to translate domain name into IP addresses. e.g. www.amazon.com to 104.98.10.2
+DNS is a discovery service. Translates info that machines need into info that humans need and vice-versa. One function of DNS is to translate domain name into IP addresses. e.g. www.amazon.com to 104.98.10.2
 
-It is a huge database and has to be distributed and resilient.
+It is a huge database (has to accomodate all IPV4 and IPV6 addresses) and has to be distributed and resilient.
 
 When you enter www.amazom.com from your laptop, it just loads. Behind the scenes, for your computer to connect to www.amazon.com, it uses IP addresses. This conversion is transparent to you as your computer is connecting directly to the DNS system or its been configured to talk to a DNS resolver server on your behalf. This resolver server is running on your internet provider or your internet router. 
 
 Parts of the DNS system
 
-- DNS Client: Piece of software running on the OS for a device you're using.
-- Resolver: Software on your device or server which queries DNS on your behalf.
-- Zone: A part of the DNS database. Zone is stored as a Zone file.
-  - Somewhere on the internet is one Zone file for Amazon.com. This file has a DNS record inside it which links the name (www) to the IP address your computer needs to communicate with that website. This Zone file is hosted by a NameServer.
-  So if you query this zone for www.amazon.com and then use teh result of that query (IP address), your laptop can communicate with the web server. This zone file can be located on potentially one or two of millions of name servers.
+- DNS Client: Your computer, phone etc.
+- Resolver: Runs within internet provider or internet router. Software on your device or server which queries DNS on your behalf.
+- Zone: A part of the DNS database that contains information needed to convert a domain name to an IP address. Zone is stored as a Zone file.
+  - Somewhere on the internet is one Zone file for Amazon.com. This file has a DNS record inside it which links the name (www) to the IP address your computer needs to communicate with that website. This Zone file is hosted by a NameServer (NS).
+  So if you query this zone for www.amazon.com and then use the result of that query (IP address), your laptop can communicate with the web server. This zone file can be located on potentially one or two of millions of name servers.
 
-DNS client => Your laptop, phone, PC etc.
-Resolver => Software on your device or a server which queries DNS on your behalf.
-(e.g. Client talks to DNS resolver)
-DNS Zone=> A part of teh DNS database (e.g. www.amazon.com)
-Zonefile =>Physical database for a Zone
+NOTE: So, one of the core pieces of functionality that DNS provides is is allows the DNS resolver server which is sitting wither in your internet router or the internet provider to find this zone/zone file. Once we have queried it, get that result and use that result to access a website. 
+
+![Optional Text](./images/dns.png)
+
+DNS client => Your laptop, phone, PC etc. It is the device or thing wants the data the DNS has (IP Address of a website). Generally it is a piece of software that is running inside teh device that you use.
+Resolver => Software on your device (PC etc) or a server which queries DNS on your behalf.
+(e.g. Client talks to DNS resolver and it asks the DNS resolver to query the DNS server on its behalf).
+DNS Zone=> A part of the global DNS database (e.g. www.amazon.com, www.netflix.com are all zones and they live inside the DNS system)
+Zonefile =>Zonefile is how the data for that zone is physically stored. It is the physical database for a Zone
 Nameserver => Where zonefiles are hosted.
 
 DNS resolver finds the nameserver that hosts a particular Zone file and then query that nameserver for a record that is in the zone file and then passes it back to the DNS client. 
 
 #### DNS Root
 
-The starting point of DNS.
-DNS names are read right to left with multiple parts separated by periods.
+DNS is distributed. The data is stored in Zone files and Zone files are stored on name servers globally. 
+The starting point of DNS in the DNS root. DNS is structured like an upside down tree and the DNS root is at the top of this upside down tree.  
+DNS names (such as www.amazon.com.) are read right to left with multiple parts separated by periods. The rightmost period after .com is the DNS root. Eevn if you do not type it in the URL, the browser adds it on its own. 
 
 `www.netflix.com.`
 
-The period is assumed to be there in a browser when it's not present.
-The DNS Root is hosted on 13 DNS Root Servers 13. These are hosted
-by 12 major companies. These companies only host the DNS root server and not the root zone database each of which is represented by a letter (!-M) and each is managed by a different company (Verisign is an exception which manages 2 servers). These servers are the entry points. 
+Tha last . is where a computer starts reading the DNS. DNS root is also called DNS root zone and just like other parts of DNS, its a database. 
+The DNS Root is hosted on 13 special name servers called DNS Root Servers. These are operated by 12 major companies. These companies only host the DNS root server and not the root zone database each of which is represented by a letter (A-M) and each is managed by a different company (Verisign is an exception which manages 2 servers). These servers are the entry points. 
 How your computer finds these entry servers => Your computer uses a resolver server 
 The OS (Windows etc.) has a root hint file which is a containing a list of these root servers so is a pointer to the DNS root server.  
 
@@ -585,12 +597,14 @@ The Root Zone is organized by IANA (Internet Assigned Numbers Authority).
 Their job is to manage the contents of the root zone. IANA is in charge
 of the DNS system because they control the root zone.
 
+![Optional Text](./images/dnsroot.png)
+
 #### DNS Hierarchy
 
 Assuming a laptop is querying DNS directly for www.amazon.com and using
 a root hints file to know how to access a root server and query the root zone.
 
-- When something is trusted in DNS, it is an **authority**.
+- When something is trusted in DNS, it is an **authority**, its known as authorative. 
 - One piece can be authoritative for root.
 - One piece can be authoritative for amazon.com
 - The root zone is the start and the only thing trusted in DNS.
@@ -603,9 +617,35 @@ The top level domains are the only things to the left of the DNS name.
 - `.com` or `.org` are generic top level domains (GTLD)
 - `.uk` is a country code top level domains (CCTLD)
 
-**Registry** maintains the zones for a TLD (e.g .ORG)
+Root zone database is just a collection of top level DNS (both generic and country specific). Managed by IANA.
+
+**Registry** maintains the zones for a TLD (e.g .ORG, .COM). .COM is delegated to Verisign.
+The way the delegation happens is that in the record for .COM, there is a set of nameserver entries which point at other DNS name servers. This is how the Root zone delegates part of itself to other registries. The nameservers listed here become authoritative for .COM. The .COM zone has an entry in it for amazon.com. This has one or more nameservers added to it amazon.com was registered. These naeservers delegate again to amazon.com zone. This zone is trusted by .COM zone and .COM zone is trused by Root Zone. 
+
+![Optional Text](./images/dns_hierarchy.png)
+
 **Registrar** has relationships with the .org TLD zone manager
 allowing domain registration
+
+**DNS resolution process:**
+
+- The client wants to communicate with www.amazon.com
+- Client uses a server inside its internet provider. This is called the resolver server.
+- Resolver server reads its root hints file and it communicates with teh DNS root servers.
+- It asks these root servers for information on www.amazon.com
+- Root servers do not have actual DNS records for this but they can help the resolvers get closer by providing .COM servers because they have the name server records for the .COM authoritative service.
+- Next, resolver servers communicate with the name servers authoritative for the .COM domain. Again, it asks for information on wwww.amazon.com. This server is only authoritative for .COM. It does not have any information for WWW.amazon.com but it does have name servers authoritative for amazon.com. 
+- Next resolver server communicates with one of those servers authoritative for amazon.com. It asks for information on www.amazon.com. This time because the server is authoritative for amazon.com (which is where the record resides), it can respond with the IP address for www.amazon.com. Resolver gets this IP, which forwards it to the client which then uses it to communicate to www.amazon.com.
+
+![Optional Text](./images/dns_resolution.png)
+
+Notes:
+
+- The root hints file is provided by OS vendors and contains a list of all root vendors.
+- Root servers - Host DNS root zone. 
+- Root Zone - Contains TLD authorititive servers. (For .com, .org etc).
+- gTLD - Generic top level domain
+- ccTLD - Country code top level domain (.uk, .in) 
 
 ### Route53 Fundamentals
 
@@ -619,31 +659,36 @@ allowing domain registration
 
 Has relationships with all major domain registries
 
-- Route 53 will check with the registry top level domain to see if the name is available
-- Router 53 creates a zonefile for the domain to be registered
+- Route 53 will check with the registry top level domain to see if the name is available. To do this Route 53 has links to all the major domain registries. These are teh companies which manage the top level domains. They have been delegated this ability by IADA which manages the root zone DNS. Each registry manages a specific zone. One of them manages .com, other manages .io etc.
+- Router 53 creates a zonefile for the domain to be registered.
 - Allocates nameservice for that zone
   - Generally four of these for one individual zone
   - This is a hosted zone
   - The zone file will be put on these four managed nameservers
 - Router 53 will communicate with the `.org` registry and add the nameserver
-records into the zone file for the top level domain.
+records into the zone file for the .ORG top level domain.
   - This is done with a nameserver record.
+
+![Optional Text](./images/register_domain.png.png)
 
 #### Route53 Details
 
-**Zonefiles** in AWS
-Hosted on four managed name servers
+Route 53 allows you to create **Zonefiles** and those zone files are called hosted zones in Route 53 terminology because they are Hosted on four managed name servers.
 
-- Can be **public** or **private**
+- Hosted zone Can be **public** (data is accessible on the public internet) or **private** (linked to VPC and accessible from withn the VPC. Used to host sensetive records)
 
-### DNS Record
+### DNS Record Types
 
-- Nameserver (NS): Allows delegation to occur in the DNS.
+- Nameserver (NS): Allows delegation to occur in the DNS. e.g. You have a .COM zone 
+managed by verisign and this zone will have multiple nameserver records in it for amazon.com. These nameserver records are how the delegation happens for amazon.com. They point at servers managed by amazon.com team and these servers host the amazon.com zone. Inside this zone are DNS records such as www whch is how you access those records as part of DNS.
 - A and AAAA Records: Maps the host to a v4 or v6 host type. Most of the time
-you will make both types of record, A and AAAA.
-- CNAME Record Type: Allows DNS shortcuts to reduce admin overhead.
-CNAMES cannot point directly at an IP address and only another name.
-- MX records: How emails are sent. They have two main parts:
+you will make both types of record, A and AAAA. Given a DNS zone, e.g. www.google.com, these type ofrecords map hostanmes to IP addresses.A records maps to an IPv4 address. AAAA record maps to an IPv6 address.
+- CNAME (Canonical name) Record Type: For a given zone, a CNAME record type lets you create the equivalent of DNS shortcuts. 
+Let us say you have a A record called server which points to an IPV4 address.Its fairly common that a given server performs multiple tasks (ftp, email, www). Creating 3 CNAMES and pointing them all to the A server record means they will all resolve to the same IPV4 adress.
+CNAME allows DNS shortcuts to reduce admin overhead. If the IP address of a server changes, its just a single record to udate the A record. Because the three CNAMES reference that A record, they'll automatically get updated. CNAMES cannot point to an IP address but only to other names.
+- MX records: How emails are sent. Imagine if you are using a laption via your email server and you want to send an email to hi@google.com. MX records are used as a part of this process. YOur email server needs to know whch server to pass the email onto.
+So we start with google.com zone. Inside this zone we have an A record with the name mail and this is pointing to an IP address. Also inside teh google.com zone is a collection of MX records. 
+MX records have They have two main parts:
   - Priority: Lower values for the priority field are higher priority.
   - Value
     - If it is just a host, it will not have a dot on the right. It is assumed
