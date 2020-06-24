@@ -669,7 +669,7 @@ Has relationships with all major domain registries
 records into the zone file for the .ORG top level domain.
   - This is done with a nameserver record.
 
-![Optional Text](./images/register_domain.png.png)
+![Optional Text](./images/register_domain.png)
 
 #### Route53 Details
 
@@ -716,7 +716,7 @@ If another client queries the same thing, they will get back a
 
 ### IAM Identity Policies
 
-Identity Policies are attached to AWS Identities which are
+Identity Policies are attached to AWS Identities.  IAM identities are
 IAM users, IAM groups, and IAM roles. These are a set of security statements
 that ALLOW or DENY access to AWS resources.
 
@@ -726,9 +726,11 @@ Once authenticated, that identity is known as an **authenticated identity**
 
 #### Statement Components
 
-- Statement ID (SID): Optional field that should help describe
-  - The resource you're interacting
-  - The actions you're trying to perform
+- Statement ID (SID): Optional field that should help describe The statement and what it does. 
+Every interaction you have with AWS is a combination of 2 things:
+  - The resource you're interacting with
+  - The actions you're trying to perform on that resource. 
+    e.g. The resource may be an S3 bucket and the action may be adding objects to the bucket. A statement only applies if the interaction you are havin with AWS,match the action and the resource. 
 - Effect: is either `allow` or `deny`.
   - It is possible to be allowed and denied at the same time
 - Action are formatted `service:operation`. There are three options:
@@ -736,6 +738,8 @@ Once authenticated, that identity is known as an **authenticated identity**
   - wildcard as an action
   - list of multiple independent actions
 - Resource: similar to action except for format `arn:aws:s3:::catgifs`
+
+![Optional Text](./images/iampolicy.png)
 
 #### Priority Level
 
