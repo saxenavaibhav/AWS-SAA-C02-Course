@@ -731,8 +731,11 @@ Every interaction you have with AWS is a combination of 2 things:
   - The resource you're interacting with
   - The actions you're trying to perform on that resource. 
     e.g. The resource may be an S3 bucket and the action may be adding objects to the bucket. A statement only applies if the interaction you are havin with AWS,match the action and the resource. 
-- Effect: is either `allow` or `deny`.
-  - It is possible to be allowed and denied at the same time
+- Effect: is either `allow` or `deny`. They decide what AWS does if action and resource match what interaction you are trying to perform in AWS.
+  - It is possible to be allowed and denied at the same time. In this case both statements are processed. Start with the first priority which are explicit denies. If you have a statement that explicitly denies access to something, it wins and overrules everything else. In th exanple below catgifs bucket and any thing inside that is denied. Second priority are explicit allows. If you attempt to do something for wich you have no explict allow or deny, then default implict deny takes effect.
+
+  ![Optional Text](./images/iampolicy2.png)
+
 - Action are formatted `service:operation`. There are three options:
   - specific individual action
   - wildcard as an action
@@ -740,6 +743,8 @@ Every interaction you have with AWS is a combination of 2 things:
 - Resource: similar to action except for format `arn:aws:s3:::catgifs`
 
 ![Optional Text](./images/iampolicy.png)
+
+If you have a user who accesses an AWS resource. This user has Policy 1 and Policy 2 attached to her. This user is also member of a group that itself has some policy attached. This user also accesses an AWS resource which also has a policy attached to it. AWS handles this by collecting all statements in all these policies and evaluates all of them together.
 
 #### Priority Level
 
@@ -749,8 +754,10 @@ Every interaction you have with AWS is a combination of 2 things:
 
 #### Inline Policies and Managed Policies
 
-- Inline Policy: grants access and assigned on each accounts individually.
-- Managed Policy (best practice): one policy is applied to all users at once.
+- Inline Policy: grants access and assigned on each accounts individually (3 isolated bts of JSON). Not a best practice. Changing access would mean changing it for all accounts individually. Useful for exceptions to normal access rights you want to grant (e.g. Giving more access rights or removing certain access right for a user).
+- Managed Policy (best practice): Created as their own object. one policy is applied to all users at once. If you have a common set of rights that you want to give to a lot of users, you shouls use managed policy. Change the policy => Immediately impact all users it is attached to.
+  - AWS Managed policies (managed by AWS)
+  - Customer Managed policies (You can create an manage these)
 
 ### IAM Users
 
