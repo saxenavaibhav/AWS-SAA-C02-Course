@@ -176,8 +176,8 @@ A VPC is private and isolated until decided otherwise. Services deployed in the 
 
 Types of VPC:
 
-- Default VPC (One default VPC per region, created by AWS, less flexible)
-- Custom VPC (Can have many custom VPCs which are all private by default). Can be linked to other VPX.
+- Default VPC (One default VPC per region, created by AWS, less flexible as these come pre-configured)
+- Custom VPC (Can be many custom VPCs which are all private by default), more flexible. Can be linked to other VPX.
 
 VPC's are created within an AWS account (in a specific AWS region). A region can have multiple custom VPC's created within it. Unless you configure otherwise, there is no way for a VPC to communicate outside its private network. 
 
@@ -185,8 +185,7 @@ VPC's are created within an AWS account (in a specific AWS region). A region can
 
 #### Default VPC Facts
 
-
-VPC CIDR - defines start and end ranges of the VPC. Everything inside that VPC uses CIDR range of the VPC.
+VPC CIDR - defines start and end ranges of IP address the VPC can use. Everything inside that VPC uses CIDR range of the VPC.
 Custom VPC can have multiple IP ranges but IP CIDR of a default VPC is always: **172.31.0.0/16**
 
 A region can have multiple AZ, each being an independent pool of infrastructure. The way a VPC provides  resilience is that it can be sub-divided into Subnets. Each subnet inside a VPC is located inside one AZ. This is set on creation and can never be changed.
@@ -217,7 +216,7 @@ Default compute service. Provides access to virtual machines called instances.
 
 **IaaS** - Infrastructure as as Service
 
-The unit of consumption is an instance
+The unit of consumption is an instance (OR configured in a certain way).
 EC2 instance is configured to launch into a single VPC subnet. Set when instance is launched.
 Private service by default (by default it runs in the private AWS zone), public access must be configured.
 To allow public access, the VPC needs to support public access. For Default VPC this is already configured for you but if you use a custom VPC then you must handle the networking on your own.
@@ -257,7 +256,7 @@ Charged for EBS storage  only.
 - Networking is not running
 - Storage is allocated to the instance for the OS.
 
-#### Terminated State (When you terminate a running or stopped instance)
+#### Terminated State (When you terminate a running or stopped instance. Non reversible process)
 
 No charges, deletes the disk and prevents all future charges.
 
@@ -281,11 +280,10 @@ AMI Contains:
 how they're presented to the operating system. Determines which volume is a
 boot volume and which volumes is a data volume.
 
-
 #### Connecting to EC2
 
 - Windows using RDP (Remote Desktop Protocol), Port 3389
-- Linux SSH protocol, Port 22
+- Linux SSH protocol, Port 22 (ssh -i <PEM File ec2-user@public IP Address>) 
 
 Login to the instance using an SSH key pair.
 - Private Key - Stored on local machine to initiate connection. Downloadable only once. AWS does not keep it.
@@ -761,7 +759,7 @@ If you have a user who accesses an AWS resource. This user has Policy 1 and Poli
 
 ### IAM Users
 
-Identity used for anything requiring **long-term** AWS access
+IAM users are Identity used for anything requiring **long-term** AWS access e.g. 
 
 - Humans
 - Applications
@@ -769,20 +767,22 @@ Identity used for anything requiring **long-term** AWS access
 
 If you can name a thing to use the AWS account, this is an IAM user.
 
+IAM starts with a principal (An entity trying to access an AWS account). Principals can be users, computers, services etc. 
 When a **principal** wants to **request** to perform an action,
 it will **authenticate** against an identity within IAM. An IAM user is an
 identity which can be used in this way.
 
 There are two ways to authenticate:
 
-- Username and Password
-- Access Keys (CLI)
+- Username and Password (If human is accessing AWS)
+- Access Keys (CLI) (Human via command line or an application)
 
 Once the **Principal** has authenticated, it becomes an **authenticated identity**
+and AWS knows which polict is applicable for this identity (and then accessing or denying access). This process is called Authorization.
 
 #### Amazon Resource Name (ARN)
 
-Uniquely identify resources within any AWS accounts.
+ARN are Uniquely identify resources within any AWS accounts.
 
 This allows you to refer to a single or group of resources.
 This prevents individual resources from the same account but in
@@ -795,13 +795,19 @@ arn:partition:service:region:account-id:resource-id
 arn:partition:service:region:account-id:resource-type/resource-id
 arn:partition:service:region:account-id:resource-type:resource-id
 ```
+arn:aws:s3:::catgifs [References a bucket. TO allow/deny access to a bucket or any actions on the bucket, use this]
+arn:aws:s3:::catgifs/* [References anything in the bucket but not the bucket itself]
+
+ARN is a collection of fields separated by a :. If you see a ::, there is nothing between them. SO in the above example, you have not specified region and account ID as bucket name is globally unique.
+You might specify a * for a region that would mean using all regions in an AWS account.
 
 - partition: almost always `aws` unless it is china `aws-cn`
-- region: can be a double colon (::) if that doesn't matter
+- service - service name in AWS (e.g. S3, IAM , RDS)
+- region: Region that the service resides in. can be a double colon (::) if that doesn't matter
 - account-id: the account that owns the resource
   - EC2 needs this
   - S3 does not need account-id because its globally unique
-- resource-type/id: changes based on the resource
+- resource-type/id: changes based on the resource. Resource ID can be the name or ID of an object e.g.user/sally
 
 An example that leads to confusion:
 
@@ -819,15 +825,16 @@ These two ARNs do not overlap
 
 ### IAM Groups
 
-Containers for users. **You cannot login to IAM groups** They have no
-credentials of their own. Used solely for management of IAM users.
+Groups are containers for users. **You cannot login to IAM groups** They have no
+credentials of their own. Used solely for management of IAM users. Used because it makes management of IAM users easier. A user can be a member of multiple groups.
 
 Groups bring two benefits
 
-1. Effective administrative style management of users based on the team
+1. Effective administrative style management of users based on the team/projects etc.
 2. Groups can have Inline and Managed policies attached.
 
-AWS merges all of the policies from all groups the user is in together.
+Users in a group inherit the policies applied on the group.
+AWS merges all of the policies from all groups the user is in and its own policies together.
 
 - The 5000 IAM user limit applies to groups.
 - There is **no all users** IAM group.
@@ -836,7 +843,7 @@ created and managed on your own.
 - No Nesting: You cannot have groups within groups.
 - 300 Group Limit per account. This can be fixed with a support ticket.
 
-**Resource Policy** A bucket can have a policy associated with that bucket.
+**Resource Policy** A bucket can have a policy associated with that bucket and it could allow Sally access to that bucket.
 It does so by referencing the identity using an ARN (Amazon Reference Name).
 A policy on a resource can reference IAM users and IAM roles by the ARN.
 A bucket can give access to one or more users or one or more roles.
@@ -849,29 +856,24 @@ Groups are used to allow permissions to be assigned to IAM users.
 
 ### IAM Roles
 
-A single thing that uses an identity is an IAM User.
+A Role is one type of identity which exists in AWS accounts. The other type is IAM users.
+
+A single pricipal that uses an identity is an IAM User.
 
 IAM Roles are also identities that are used by large groups of individuals.
-If have more than 5000 principals, it could be a candidate for an IAM Role.
+If have more than 5000 principals using an identity, it could be a candidate for an IAM Role.
 
-IAM Roles are **assumed** you become that role.
-
-This can be used short term by other identities.
+IAM Roles are **assumed** you become that role. A role represents a level of access inside an AWS account. This can be used short term by other identities. These identitis assume the role for a short period of time, they use the permissions this role has for a short period of time and then they stop being that role. Its not like an IAM user where its a representation of you for long term.
 
 IAM Users can have inline or managed policies which control which permissions
 the identity gets within AWS
 
 Policies which grant, allow or deny, permissions based on their associations.
 
-IAM Roles have two types of roles can be attached.
+IAM Roles have two types of policies can be attached.
 
-- Trust Policy: Specifies which identities are allowed to assume the role.
-- Permissions Policy: Specifies what the role is allowed to do.
-
-If an identity is allowed on the **Trust Policy**, it is given a set
-of **Temporary Security Credentials**. Similar to access keys except they
-are time limited to expire. The identity will need to renew them by
-reassuming the role.
+- Trust Policy: Specifies which identities are allowed to assume the role. [e.g. Identity A is allowed to assumed the role as identity A is allowed in the trush policy whereas identity B may not be allowed]. Trust policy can reference different things - It can reference identities in the same account, other IAM users, other roles, even AWS services such as EC2. Trush policy can also reference identities in otehr AWS accounts. If a role gets assumed by something that is allowed to assume it, then AWS generated temporary security credentials and these are made available to the identity which assumes this role. Once these expire, identity will need to reassume the role. These temporary credentials will be able to access whatever AWS resources are defined in the Permissions Policy.
+- Permissions Policy: Specifies what the role is allowed to do/access.
 
 Every time the **Temporary Security Credentials** are used, the access
 is checked against the **Permissions Policy**. If you change the policy, the
@@ -884,7 +886,9 @@ security credentials (TSC).
 
 ### When to use IAM Roles
 
-Lambda Execution Role.
+- One of the most common uses of roles within the same AWS account are the AWS services themselves. AWS services act on your behalf and they need access rights to perform certain actions. e.g. 
+Lambda Execution Role. A Lambda function by default has no permissions. It needs some permissions to do things when it runs. These permissions are provided by access keys. Instead of hardcoding access keys in the Lambda function, you can create a role called
+Lambda execution role.
 For a given lambda function, you cannot determine the number of principals
 which suggested a Role might be the ideal identity to use.
 
