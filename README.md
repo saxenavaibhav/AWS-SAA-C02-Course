@@ -324,24 +324,27 @@ Other components of object:
 
 #### Buckets
 
+Containers for objects.
+
 - Created in a specific AWS Region.
 - Data has a primary home region. Will not leave this region unless told.
 - Blast Radius [In case of a failure the impact will be limited to the region]= Region
-- Unlimited number of Objects
 - An AWS account can have upto 100 buckets. Can be increased to 1000 using support request.
 - Bucket name is globally unique across all regions and AWS accounts
 - Buckets can hold unlimted number of objects
 - Bucket names can be 3-63 characters, all lower case, no underscore.
 - Bucket names start start with a lowercase letter or number and cannot be IP formatted (e.g. 1.1.1.1)
-- All objects are stored within the bucket at the same level. Although you will see folders in S3 but internally its all a flat structure. 
-- Thereis a soft limit of 100 buckets per AWS account and a hard limit of 100 per account (via AWS support request).
+- Buckets are a flat structure. All objects are stored within the bucket at the same level. Although you will see folders in S3 but internally its all a flat structure. 
+- There is a soft limit of 100 buckets per AWS account and a hard limit of 1000 per account (via AWS support request).
 
 If the objects name starts with a slash such as `/old/Koala1.jpg` the UI will
 present this as a folder. In actuality this is not true, there are no folders. Folders are often referred to as prefixes in S3.
 
 S3 is object storage - Not file or block. Good for images, video files, not good for OS etc. Since its not block storage, it can't be mounted (e.g. K:/ to /images).
+Block storage is limited to one thng accessing it at a time (one instance for example).
+By defaul other than the bucket owner nobody has access to the bucket.
 
-Bu defaul other than the bucket owner nobody has access to teh bucket.
+NOTE: If there is a system where no of users is greater than 1000, then each user cannot have a bucket to him (1000 limit). In this case you can use prefixes (folders)
 
 ### CloudFormation Basics
 
